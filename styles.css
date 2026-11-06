@@ -120,11 +120,13 @@ h1 {
 }
 
 .intro-copy {
+  width: 100%;
   max-width: 560px;
   margin: 39px 0 0;
   color: var(--soft);
   font-size: clamp(1rem, 2vw, 1.25rem);
   line-height: 1.65;
+  overflow-wrap: anywhere;
 }
 
 .work {
@@ -159,7 +161,7 @@ h1 {
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: 58px 1fr auto;
+  grid-template-columns: 58px 1fr;
   align-items: center;
   gap: 20px;
   min-height: 98px;
@@ -181,7 +183,7 @@ h1 {
   padding: 2px;
   border-radius: 13px;
   background: conic-gradient(
-    from 0deg,
+    from var(--glow-angle),
     transparent 0deg,
     rgba(255, 255, 255, 0.08) 48deg,
     rgba(255, 255, 255, 0.95) 92deg,
@@ -196,7 +198,7 @@ h1 {
     linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  animation: orbit-glow 5s linear infinite;
+  animation: glow-angle 5s linear infinite;
 }
 
 .project > * {
@@ -236,14 +238,10 @@ h1 {
   transform: translateX(7px);
 }
 
-.project-dark {
+.project-dark,
+.project-mid {
   background: #e8e6e1;
   color: #111217;
-}
-
-.project-mid {
-  background: #9c9b9a;
-  color: #121319;
 }
 
 .project-number {
@@ -256,23 +254,15 @@ h1 {
   letter-spacing: 0.01em;
 }
 
-.project-arrow {
-  width: 20px;
-  height: 20px;
-  border-top: 2px solid currentColor;
-  border-right: 2px solid currentColor;
-  transform: translate(-2px, 2px) rotate(45deg);
-  transition: transform 180ms ease;
+@property --glow-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
 }
 
-.project:hover .project-arrow,
-.project:focus-visible .project-arrow {
-  transform: translate(1px, -1px) rotate(45deg);
-}
-
-@keyframes orbit-glow {
+@keyframes glow-angle {
   to {
-    transform: rotate(360deg);
+    --glow-angle: 360deg;
   }
 }
 
@@ -325,7 +315,7 @@ h1 {
   }
 
   .project {
-    grid-template-columns: 34px 1fr auto;
+    grid-template-columns: 34px 1fr;
     gap: 12px;
     min-height: 76px;
     padding: 0 16px;
