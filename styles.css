@@ -172,6 +172,23 @@ h1 {
     background 180ms ease;
 }
 
+.discord-trigger {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.discord-username {
+  display: none;
+  margin-left: 12px;
+  opacity: 0.6;
+}
+
+.discord-trigger.is-revealed .discord-username {
+  display: inline;
+}
+
 .project:hover,
 .project:focus-visible {
   border-color: rgba(244, 242, 238, 0.65);
@@ -186,10 +203,6 @@ h1 {
 .project-mid {
   background: #9c9b9a;
   color: #121319;
-}
-
-.project-light {
-  background: #4b4c50;
 }
 
 .project-number {
@@ -227,59 +240,6 @@ h1 {
   color: var(--soft);
   font-size: 1rem;
   line-height: 1.8;
-}
-
-.contact {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 30px;
-  padding-top: 28px;
-  border-top: 1px solid var(--line);
-}
-
-.contact .eyebrow {
-  margin-bottom: 12px;
-}
-
-.contact-note {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.76rem;
-}
-
-.contact-links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: end;
-  gap: 10px;
-}
-
-.contact-links a {
-  display: inline-flex;
-  align-items: center;
-  gap: 18px;
-  padding: 13px 15px;
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  color: var(--ink);
-  font-size: 0.74rem;
-  letter-spacing: 0.08em;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition:
-    background 180ms ease,
-    color 180ms ease;
-}
-
-.contact-links a:hover,
-.contact-links a:focus-visible {
-  background: var(--ink);
-  color: var(--night);
-}
-
-.contact-links span {
-  font-size: 1rem;
 }
 
 :focus-visible {
@@ -345,13 +305,10 @@ h1 {
     line-height: 1.75;
   }
 
-  .contact {
+  .discord-username {
     display: block;
-  }
-
-  .contact-links {
-    justify-content: start;
-    margin-top: 24px;
+    margin: 4px 0 0;
+    font-size: 0.7rem;
   }
 }
 
