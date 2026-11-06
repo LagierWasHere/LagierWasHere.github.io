@@ -1,6 +1,7 @@
 const canvas = document.querySelector(".starfield");
 const context = canvas.getContext("2d");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const discordTrigger = document.querySelector(".discord-trigger");
 
 let stars = [];
 let animationFrame;
@@ -47,3 +48,8 @@ window.addEventListener("resize", resizeCanvas);
 if (reducedMotion && animationFrame) {
   cancelAnimationFrame(animationFrame);
 }
+
+discordTrigger.addEventListener("click", () => {
+  const isRevealed = discordTrigger.classList.toggle("is-revealed");
+  discordTrigger.setAttribute("aria-expanded", String(isRevealed));
+});
