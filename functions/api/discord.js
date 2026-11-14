@@ -18,6 +18,33 @@ export async function onRequestPost({ request, env }) {
   }
 
   if (interaction.type === 1) return json({ type: 1 });
+  if (interaction.type === 4) {
+    const focusedOption = (interaction.data.options || []).find((option) => option.focused);
+    if (!focusedOption || focusedOption.name !== "title") {
+      return json({ type: 8, data: { choices: [] } });
+    }
+
+    let novels = [];
+    try {
+      const raw = env.RECS_KV ? await env.RECS_KV.get("novels") : null;
+      const parsed = raw ? JSON.parse(raw) : [];
+      novels = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      novels = [];
+    }
+
+    const query = String(focusedOption.value || "").trim().toLowerCase();
+    const choices = novels
+      .filter((novel) => String(novel.title || "").toLowerCase().includes(query))
+      .slice(0, 25)
+      .map((novel) => {
+        const title = String(novel.title || "").trim();
+        return { name: title.slice(0, 100), value: title.slice(0, 100) };
+      })
+      .filter((choice) => choice.name);
+
+    return json({ type: 8, data: { choices } });
+  }
   if (interaction.type !== 2) return new Response("Unhandled interaction", { status: 400 });
   if (!env.RECS_KV) return json({ type: 4, data: { content: "RECS_KV is not configured.", flags: 64 } });
 

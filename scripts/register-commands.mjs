@@ -21,7 +21,7 @@ const commands = [
   {
     name: "del-rec",
     description: "Remove a novel recommendation",
-    options: [{ name: "title", description: "Title to remove", type: 3, required: true }]
+    options: [{ name: "title", description: "Title to remove", type: 3, required: true, autocomplete: true }]
   }
 ];
 
