@@ -3,11 +3,299 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="refresh" content="0; url=/me/" />
-    <title>Lagier</title>
-    <link rel="canonical" href="https://lagierr.me/me/" />
+    <meta name="description" content="Lagier's corner of the internet." />
+    <title>Lagier — /me &amp; /recs</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0c10;
+        --panel: #111217;
+        --card: #e8e6e1;
+        --ink: #f4f2ee;
+        --dark-ink: #111217;
+        --muted: #a7a5a2;
+        --line: rgba(244, 242, 238, 0.17);
+        --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        --display: "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        overflow-x: hidden;
+        background: radial-gradient(circle at 50% 0, #1a1b24, var(--bg) 58%);
+        color: var(--ink);
+        font-family: var(--mono);
+      }
+      button, a { font: inherit; }
+      button { cursor: pointer; }
+      .shell {
+        width: min(100% - 18px, 920px);
+        min-height: 92vh;
+        margin: 4vh auto;
+        overflow: hidden;
+        border: 1px solid rgba(244, 242, 238, 0.8);
+        border-radius: 17px;
+        background: rgba(15, 16, 21, 0.9);
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(16px);
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 77px;
+        padding: 0 clamp(20px, 5vw, 32px);
+        border-bottom: 1px solid var(--line);
+      }
+      .wordmark {
+        color: var(--ink);
+        letter-spacing: 0.08em;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+      nav { display: flex; gap: 10px; align-items: center; }
+      .nav-dot {
+        width: 12px;
+        height: 12px;
+        padding: 0;
+        border: 1px solid var(--muted);
+        border-radius: 50%;
+        background: transparent;
+        color: var(--dark-ink);
+        transition: 180ms ease;
+      }
+      .nav-dot.active {
+        width: auto;
+        min-width: 54px;
+        padding: 4px 9px;
+        border-color: var(--card);
+        border-radius: 999px;
+        background: var(--card);
+      }
+      .nav-dot span { display: none; }
+      .nav-dot.active span { display: inline; font-size: 0.65rem; }
+      .nav-dot.locked { opacity: 0.3; cursor: not-allowed; }
+      main { padding: clamp(32px, 7vw, 74px); }
+      .view[hidden] { display: none; }
+      .eyebrow {
+        margin: 0 0 20px;
+        color: var(--muted);
+        font-size: 0.7rem;
+        letter-spacing: 0.16em;
+        line-height: 1.5;
+        text-transform: uppercase;
+      }
+      h1, h2 {
+        margin: 0;
+        font-family: var(--display);
+        font-weight: 800;
+        letter-spacing: -0.08em;
+        line-height: 0.9;
+      }
+      h1 { font-size: clamp(4.5rem, 17vw, 10.5rem); }
+      h2 { font-size: clamp(3.5rem, 12vw, 7rem); }
+      .accent { color: var(--muted); }
+      .intro-copy {
+        width: 100%;
+        max-width: 560px;
+        margin: 39px 0 0;
+        color: #d7d4ce;
+        font-size: clamp(1rem, 2vw, 1.25rem);
+        line-height: 1.65;
+        overflow-wrap: anywhere;
+      }
+      .section {
+        margin-top: clamp(52px, 9vw, 96px);
+        padding-top: 32px;
+        border-top: 1px solid var(--line);
+      }
+      .section-heading {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+      .section-heading .eyebrow { margin: 0; white-space: nowrap; }
+      .rule { width: 100%; height: 1px; background: var(--line); }
+      .cards { display: grid; gap: 14px; margin-top: 30px; }
+      .card {
+        position: relative;
+        isolation: isolate;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        min-height: 98px;
+        padding: 0 27px;
+        overflow: hidden;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        background: var(--card);
+        color: var(--dark-ink);
+        text-decoration: none;
+        transition: transform 180ms ease, background 180ms ease;
+      }
+      .card::before {
+        position: absolute;
+        z-index: -1;
+        inset: -2px;
+        padding: 2px;
+        border-radius: 13px;
+        background: conic-gradient(
+          from var(--glow-angle),
+          transparent 0deg,
+          rgba(255,255,255,.08) 48deg,
+          rgba(255,255,255,.95) 92deg,
+          rgba(255,255,255,.08) 136deg,
+          transparent 190deg
+        );
+        content: "";
+        pointer-events: none;
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        animation: glow-angle 5s linear infinite;
+      }
+      .card:hover, .card:focus-visible { transform: translateX(7px); background: #f5f4f0; }
+      .card-label { display: flex; align-items: center; gap: 20px; }
+      .number { color: #777571; font-size: 0.8rem; }
+      .username { max-width: 0; overflow: hidden; color: #777571; font-size: 0.8rem; opacity: 0; transition: 600ms ease; white-space: nowrap; }
+      .discord-card.revealed .username { max-width: 130px; opacity: 1; }
+      .rec-list { display: grid; gap: 14px; margin-top: 30px; }
+      .rec {
+        padding: 22px;
+        border-radius: 11px;
+        background: var(--card);
+        color: var(--dark-ink);
+      }
+      .rec-top { display: flex; justify-content: space-between; gap: 12px; }
+      .rec h3 { margin: 0; font-size: 1rem; }
+      .rec p { margin: 12px 0 0; color: #4f4e4b; font-size: 0.8rem; line-height: 1.65; }
+      .badge, .filter {
+        border: 1px solid #777571;
+        border-radius: 999px;
+        padding: 4px 9px;
+        background: transparent;
+        color: inherit;
+        font-size: 0.65rem;
+      }
+      .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+      .filter.active { background: var(--card); color: var(--dark-ink); }
+      .status { margin: 16px 0 0; color: var(--muted); font-size: 0.7rem; }
+      @property --glow-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+      @keyframes glow-angle { to { --glow-angle: 360deg; } }
+      @media (max-width: 620px) {
+        .shell { margin: 9px auto; }
+        main { padding: 36px 22px 28px; }
+        header { min-height: 61px; }
+        .card { min-height: 76px; padding: 0 16px; }
+        .card-label { gap: 12px; }
+        .card:hover, .card:focus-visible { transform: translateX(3px); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      }
+    </style>
   </head>
   <body>
-    <p>Redirecting to <a href="/me/">Lagier's page</a>...</p>
+    <div class="shell">
+      <header>
+        <a class="wordmark" href="/me/">Lagier</a>
+        <nav aria-label="Section navigation">
+          <button class="nav-dot active" id="dot-me" type="button" data-route="me"><span>/me</span></button>
+          <button class="nav-dot" id="dot-recs" type="button" data-route="recs"><span>/recs</span></button>
+          <button class="nav-dot locked" type="button" aria-label="Coming soon"> </button>
+        </nav>
+      </header>
+
+      <main>
+        <section class="view" id="view-me">
+          <p class="eyebrow">WebNovel Slop Consumer · since 2020</p>
+          <h1>Hellooo<span class="accent">!</span></h1>
+          <p class="intro-copy">PLEASEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE recommend me novels to read!!!! Q-Q</p>
+          <section class="section" aria-labelledby="socials-title">
+            <div class="section-heading">
+              <p class="eyebrow" id="socials-title">My Socials</p>
+              <span class="rule"></span>
+            </div>
+            <div class="cards">
+              <button class="card discord-card" id="discord-card" type="button" aria-expanded="false">
+                <span class="card-label"><span class="number">01</span><strong>Discord</strong></span>
+                <span class="username">justlagier</span>
+              </button>
+              <a class="card" href="https://open.spotify.com/user/31c56sxkffavhvbqm5iuhjpejf2u" target="_blank" rel="noreferrer">
+                <span class="card-label"><span class="number">02</span><strong>Spotify</strong></span>
+              </a>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" id="view-recs" hidden>
+          <p class="eyebrow">Curated peak &amp; slop</p>
+          <h2>Recs<span class="accent">.</span></h2>
+          <div class="filters" aria-label="Recommendation filters">
+            <button class="filter active" type="button" data-filter="ALL">ALL</button>
+            <button class="filter" type="button" data-filter="PEAK">PEAK</button>
+            <button class="filter" type="button" data-filter="FANTASY">FANTASY</button>
+            <button class="filter" type="button" data-filter="MYSTERY">MYSTERY</button>
+          </div>
+          <p class="status" id="recs-status">KV: syncing</p>
+          <div class="rec-list" id="recs-list"></div>
+        </section>
+      </main>
+    </div>
+    <script>
+      const fallbackRecs = [
+        { title: "Lord of the Mysteries", category: "MYSTERY", isPeak: true, status: "PEAK", tags: ["Steampunk", "Eldritch"], note: "Slow start in volume one, but the worldbuilding and tarot club meetings are unmatched." },
+        { title: "Shadow Slave", category: "FANTASY", isPeak: true, status: "PEAK", tags: ["Dark Fantasy", "Progression"], note: "Forgotten Shore alone makes this mandatory reading." },
+        { title: "Reverend Insanity", category: "FANTASY", isPeak: true, status: "PEAK", tags: ["Villain MC", "Schemes"], note: "A ruthless main character who actually uses his brain." }
+      ];
+      let recs = [];
+      let filter = "ALL";
+      const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+      function renderRecs() {
+        const visible = recs.filter((rec) => filter === "ALL" || (filter === "PEAK" ? rec.isPeak : rec.category === filter));
+        document.querySelector("#recs-list").innerHTML = visible.length
+          ? visible.map((rec) => `<article class="rec"><div class="rec-top"><h3>${esc(rec.title)}</h3><span class="badge">${esc(rec.status || "READ")}</span></div><p>${esc(rec.note)}</p><p>${(rec.tags || []).map((tag) => `#${esc(String(tag).replace(/^#/, ""))}`).join(" · ")}</p></article>`).join("")
+          : '<p class="status">No recommendations in this category yet.</p>';
+      }
+      async function loadRecs() {
+        try {
+          const response = await fetch("/api/recs");
+          if (!response.ok) throw new Error("KV unavailable");
+          recs = await response.json();
+          document.querySelector("#recs-status").textContent = "KV: live";
+        } catch {
+          recs = fallbackRecs;
+          document.querySelector("#recs-status").textContent = "KV: preview";
+        }
+        renderRecs();
+      }
+      function switchRoute(route, push = true) {
+        const isRecs = route === "recs";
+        document.querySelector("#view-me").hidden = isRecs;
+        document.querySelector("#view-recs").hidden = !isRecs;
+        document.querySelector("#dot-me").classList.toggle("active", !isRecs);
+        document.querySelector("#dot-recs").classList.toggle("active", isRecs);
+        if (push) history.pushState({ route }, "", `/${route}`);
+      }
+      document.querySelectorAll("[data-route]").forEach((button) => button.addEventListener("click", () => switchRoute(button.dataset.route)));
+      document.querySelectorAll("[data-filter]").forEach((button) => button.addEventListener("click", () => {
+        filter = button.dataset.filter;
+        document.querySelectorAll("[data-filter]").forEach((item) => item.classList.toggle("active", item === button));
+        renderRecs();
+      }));
+      document.querySelector("#discord-card").addEventListener("click", (event) => {
+        const card = event.currentTarget;
+        const revealed = card.classList.toggle("revealed");
+        card.setAttribute("aria-expanded", String(revealed));
+      });
+      window.addEventListener("popstate", () => switchRoute(location.pathname.includes("/recs") ? "recs" : "me", false));
+      switchRoute(location.pathname.includes("/recs") ? "recs" : "me", false);
+      loadRecs();
+    </script>
   </body>
 </html>

@@ -1,0 +1,10 @@
+# Cloudflare Pages/Workers configuration template.
+# Replace the placeholder ID after creating a KV namespace:
+#   npx wrangler kv namespace create RECS_KV
+
+name = "lagierr-me"
+compatibility_date = "2026-11-14"
+
+[[kv_namespaces]]
+binding = "RECS_KV"
+id = "REPLACE_WITH_PRODUCTION_KV_NAMESPACE_ID"
