@@ -1,301 +1,397 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Lagier's corner of the internet." />
-    <title>Lagier — /me &amp; /recs</title>
-    <style>
-      :root {
-        color-scheme: dark;
-        --bg: #0b0c10;
-        --panel: #111217;
-        --card: #e8e6e1;
-        --ink: #f4f2ee;
-        --dark-ink: #111217;
-        --muted: #a7a5a2;
-        --line: rgba(244, 242, 238, 0.17);
-        --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-        --display: "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LAGIER — /me &amp; /recs</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #111113;
+      --cream-card: #eae8e3;
+      --cream-hover: #f5f4f0;
+      --text-cream: #eae8e3;
+    }
 
-      * { box-sizing: border-box; }
-      html { scroll-behavior: smooth; }
-      body {
-        min-width: 320px;
-        min-height: 100vh;
-        margin: 0;
-        overflow-x: hidden;
-        background: radial-gradient(circle at 50% 0, #1a1b24, var(--bg) 58%);
-        color: var(--ink);
-        font-family: var(--mono);
-      }
-      button, a { font: inherit; }
-      button { cursor: pointer; }
-      .shell {
-        width: min(100% - 18px, 920px);
-        min-height: 92vh;
-        margin: 4vh auto;
-        overflow: hidden;
-        border: 1px solid rgba(244, 242, 238, 0.8);
-        border-radius: 17px;
-        background: rgba(15, 16, 21, 0.9);
-        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(16px);
-      }
-      header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        min-height: 77px;
-        padding: 0 clamp(20px, 5vw, 32px);
-        border-bottom: 1px solid var(--line);
-      }
-      .wordmark {
-        color: var(--ink);
-        letter-spacing: 0.08em;
-        text-decoration: none;
-        text-transform: uppercase;
-      }
-      nav { display: flex; gap: 10px; align-items: center; }
-      .nav-dot {
-        width: 12px;
-        height: 12px;
-        padding: 0;
-        border: 1px solid var(--muted);
-        border-radius: 50%;
-        background: transparent;
-        color: var(--dark-ink);
-        transition: 180ms ease;
-      }
-      .nav-dot.active {
-        width: auto;
-        min-width: 54px;
-        padding: 4px 9px;
-        border-color: var(--card);
-        border-radius: 999px;
-        background: var(--card);
-      }
-      .nav-dot span { display: none; }
-      .nav-dot.active span { display: inline; font-size: 0.65rem; }
-      .nav-dot.locked { opacity: 0.3; cursor: not-allowed; }
-      main { padding: clamp(32px, 7vw, 74px); }
-      .view[hidden] { display: none; }
-      .eyebrow {
-        margin: 0 0 20px;
-        color: var(--muted);
-        font-size: 0.7rem;
-        letter-spacing: 0.16em;
-        line-height: 1.5;
-        text-transform: uppercase;
-      }
-      h1, h2 {
-        margin: 0;
-        font-family: var(--display);
-        font-weight: 800;
-        letter-spacing: -0.08em;
-        line-height: 0.9;
-      }
-      h1 { font-size: clamp(4.5rem, 17vw, 10.5rem); }
-      h2 { font-size: clamp(3.5rem, 12vw, 7rem); }
-      .accent { color: var(--muted); }
-      .intro-copy {
-        width: 100%;
-        max-width: 560px;
-        margin: 39px 0 0;
-        color: #d7d4ce;
-        font-size: clamp(1rem, 2vw, 1.25rem);
-        line-height: 1.65;
-        overflow-wrap: anywhere;
-      }
-      .section {
-        margin-top: clamp(52px, 9vw, 96px);
-        padding-top: 32px;
-        border-top: 1px solid var(--line);
-      }
-      .section-heading {
-        display: flex;
-        align-items: center;
-        gap: 22px;
-      }
-      .section-heading .eyebrow { margin: 0; white-space: nowrap; }
-      .rule { width: 100%; height: 1px; background: var(--line); }
-      .cards { display: grid; gap: 14px; margin-top: 30px; }
-      .card {
-        position: relative;
-        isolation: isolate;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-        min-height: 98px;
-        padding: 0 27px;
-        overflow: hidden;
-        border: 1px solid transparent;
-        border-radius: 11px;
-        background: var(--card);
-        color: var(--dark-ink);
-        text-decoration: none;
-        transition: transform 180ms ease, background 180ms ease;
-      }
-      .card::before {
-        position: absolute;
-        z-index: -1;
-        inset: -2px;
-        padding: 2px;
-        border-radius: 13px;
-        background: conic-gradient(
-          from var(--glow-angle),
-          transparent 0deg,
-          rgba(255,255,255,.08) 48deg,
-          rgba(255,255,255,.95) 92deg,
-          rgba(255,255,255,.08) 136deg,
-          transparent 190deg
-        );
-        content: "";
-        pointer-events: none;
-        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-        -webkit-mask-composite: xor;
-        mask-composite: exclude;
-        animation: glow-angle 5s linear infinite;
-      }
-      .card:hover, .card:focus-visible { transform: translateX(7px); background: #f5f4f0; }
-      .card-label { display: flex; align-items: center; gap: 20px; }
-      .number { color: #777571; font-size: 0.8rem; }
-      .username { max-width: 0; overflow: hidden; color: #777571; font-size: 0.8rem; opacity: 0; transition: 600ms ease; white-space: nowrap; }
-      .discord-card.revealed .username { max-width: 130px; opacity: 1; }
-      .rec-list { display: grid; gap: 14px; margin-top: 30px; }
-      .rec {
-        padding: 22px;
-        border-radius: 11px;
-        background: var(--card);
-        color: var(--dark-ink);
-      }
-      .rec-top { display: flex; justify-content: space-between; gap: 12px; }
-      .rec h3 { margin: 0; font-size: 1rem; }
-      .rec p { margin: 12px 0 0; color: #4f4e4b; font-size: 0.8rem; line-height: 1.65; }
-      .badge, .filter {
-        border: 1px solid #777571;
-        border-radius: 999px;
-        padding: 4px 9px;
-        background: transparent;
-        color: inherit;
-        font-size: 0.65rem;
-      }
-      .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
-      .filter.active { background: var(--card); color: var(--dark-ink); }
-      .status { margin: 16px 0 0; color: var(--muted); font-size: 0.7rem; }
-      @property --glow-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
-      @keyframes glow-angle { to { --glow-angle: 360deg; } }
-      @media (max-width: 620px) {
-        .shell { margin: 9px auto; }
-        main { padding: 36px 22px 28px; }
-        header { min-height: 61px; }
-        .card { min-height: 76px; padding: 0 16px; }
-        .card-label { gap: 12px; }
-        .card:hover, .card:focus-visible { transform: translateX(3px); }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="shell">
-      <header>
-        <a class="wordmark" href="/me/">Lagier</a>
-        <nav aria-label="Section navigation">
-          <button class="nav-dot active" id="dot-me" type="button" data-route="me"><span>/me</span></button>
-          <button class="nav-dot" id="dot-recs" type="button" data-route="recs"><span>/recs</span></button>
-          <button class="nav-dot locked" type="button" aria-label="Coming soon"> </button>
-        </nav>
-      </header>
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-cream);
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
 
-      <main>
-        <section class="view" id="view-me">
-          <p class="eyebrow">WebNovel Slop Consumer · since 2020</p>
-          <h1>Hellooo<span class="accent">!</span></h1>
-          <p class="intro-copy">PLEASEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE recommend me novels to read!!!! Q-Q</p>
-          <section class="section" aria-labelledby="socials-title">
-            <div class="section-heading">
-              <p class="eyebrow" id="socials-title">My Socials</p>
-              <span class="rule"></span>
-            </div>
-            <div class="cards">
-              <button class="card discord-card" id="discord-card" type="button" aria-expanded="false">
-                <span class="card-label"><span class="number">01</span><strong>Discord</strong></span>
-                <span class="username">justlagier</span>
-              </button>
-              <a class="card" href="https://open.spotify.com/user/31c56sxkffavhvbqm5iuhjpejf2u" target="_blank" rel="noreferrer">
-                <span class="card-label"><span class="number">02</span><strong>Spotify</strong></span>
-              </a>
-            </div>
-          </section>
-        </section>
+    .font-mono-custom {
+      font-family: 'JetBrains Mono', monospace;
+    }
 
-        <section class="view" id="view-recs" hidden>
-          <p class="eyebrow">Curated peak &amp; slop</p>
-          <h2>Recs<span class="accent">.</span></h2>
-          <div class="filters" aria-label="Recommendation filters">
-            <button class="filter active" type="button" data-filter="ALL">ALL</button>
-            <button class="filter" type="button" data-filter="PEAK">PEAK</button>
-            <button class="filter" type="button" data-filter="FANTASY">FANTASY</button>
-            <button class="filter" type="button" data-filter="MYSTERY">MYSTERY</button>
-          </div>
-          <p class="status" id="recs-status">KV: syncing</p>
-          <div class="rec-list" id="recs-list"></div>
-        </section>
-      </main>
+    .app-frame {
+      border: 1px solid #3f3f46;
+      border-radius: 24px;
+      background-color: #111113;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    /* iOS-inspired 3-Dot Navigation Transitions (GPU 120fps optimized) */
+    .nav-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 9999px;
+      border: 1.5px solid var(--text-cream);
+      background-color: transparent;
+      transition:
+        width 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+        height 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+        padding 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+        background-color 0.25s ease,
+        box-shadow 0.3s ease;
+      will-change: width, height, transform;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .nav-dot:hover:not(.locked):not(.active) {
+      transform: scale(1.22);
+      border-color: #ffffff;
+    }
+
+    .nav-dot.active {
+      width: 56px;
+      height: 22px;
+      padding: 0 8px;
+      background-color: var(--text-cream);
+      color: #111113;
+      transform: scale(1);
+      box-shadow: 0 0 0 2px #111113, 0 0 0 3.5px var(--text-cream);
+    }
+
+    .dot-label {
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 0.22s ease 0.08s, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1) 0.05s;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .nav-dot.active .dot-label {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .nav-dot.locked {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    @keyframes gentleShake {
+      0%, 100% { transform: translate3d(0, 0, 0); }
+      25% { transform: translate3d(-3px, 0, 0); }
+      75% { transform: translate3d(3px, 0, 0); }
+    }
+    .shake {
+      animation: gentleShake 0.28s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    }
+
+    .cream-card {
+      background-color: var(--cream-card);
+      color: #141416;
+      border-radius: 16px;
+      will-change: transform;
+      transition:
+        transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+        background-color 0.2s ease;
+    }
+
+    .cream-card:hover {
+      background-color: var(--cream-hover);
+      transform: translate3d(0, -2px, 0);
+    }
+
+    .cream-card:active {
+      transform: scale3d(0.985, 0.985, 1);
+    }
+
+    .view-stack {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .view-panel {
+      grid-row-start: 1;
+      grid-column-start: 1;
+      min-width: 0;
+      will-change: transform, opacity;
+      transition:
+        opacity 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .view-hidden-left {
+      opacity: 0;
+      transform: translate3d(-16px, 0, 0);
+      pointer-events: none;
+      visibility: hidden;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .view-hidden-right {
+      opacity: 0;
+      transform: translate3d(16px, 0, 0);
+      pointer-events: none;
+      visibility: hidden;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .view-visible {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+      pointer-events: auto;
+      visibility: visible;
+      height: auto;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-3 sm:p-6">
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 translate-y-2">
+    <div id="toast-msg" class="font-mono-custom text-xs bg-[#eae8e3] text-[#111113] px-4 py-2 rounded-full shadow-lg font-medium border border-zinc-400">
+      Copied to clipboard
     </div>
-    <script>
-      const fallbackRecs = [
-        { title: "Lord of the Mysteries", category: "MYSTERY", isPeak: true, status: "PEAK", tags: ["Steampunk", "Eldritch"], note: "Slow start in volume one, but the worldbuilding and tarot club meetings are unmatched." },
-        { title: "Shadow Slave", category: "FANTASY", isPeak: true, status: "PEAK", tags: ["Dark Fantasy", "Progression"], note: "Forgotten Shore alone makes this mandatory reading." },
-        { title: "Reverend Insanity", category: "FANTASY", isPeak: true, status: "PEAK", tags: ["Villain MC", "Schemes"], note: "A ruthless main character who actually uses his brain." }
-      ];
-      let recs = [];
-      let filter = "ALL";
-      const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
-      function renderRecs() {
-        const visible = recs.filter((rec) => filter === "ALL" || (filter === "PEAK" ? rec.isPeak : rec.category === filter));
-        document.querySelector("#recs-list").innerHTML = visible.length
-          ? visible.map((rec) => `<article class="rec"><div class="rec-top"><h3>${esc(rec.title)}</h3><span class="badge">${esc(rec.status || "READ")}</span></div><p>${esc(rec.note)}</p><p>${(rec.tags || []).map((tag) => `#${esc(String(tag).replace(/^#/, ""))}`).join(" · ")}</p></article>`).join("")
-          : '<p class="status">No recommendations in this category yet.</p>';
+  </div>
+
+  <main class="app-frame w-full max-w-md min-h-[82vh] flex flex-col justify-between overflow-hidden relative">
+    <header class="flex items-center justify-between px-6 py-5 border-b border-zinc-800/90">
+      <button onclick="switchRoute('me')" class="font-mono-custom text-sm tracking-[0.2em] uppercase text-[#eae8e3] hover:opacity-80 transition">
+        LAGIER
+      </button>
+      <nav aria-label="Section navigation" class="flex items-center gap-3.5">
+        <button id="dot-me" onclick="switchRoute('me')" class="nav-dot active" aria-label="About me section" title="/me">
+          <span class="dot-label font-mono-custom text-[10px] font-bold tracking-wider">/me</span>
+        </button>
+        <button id="dot-recs" onclick="switchRoute('recs')" class="nav-dot" aria-label="Novel recommendations section" title="/recs">
+          <span class="dot-label font-mono-custom text-[10px] font-bold tracking-wider">/recs</span>
+        </button>
+        <button id="dot-soon" onclick="handleLockedDot(this)" class="nav-dot locked" aria-label="Coming soon section" title="Coming soon"></button>
+      </nav>
+    </header>
+
+    <div class="flex-1 px-6 py-7 overflow-y-auto overflow-x-hidden view-stack">
+      <section id="view-me" class="view-panel view-visible">
+        <p class="font-mono-custom text-[11px] tracking-[0.18em] text-zinc-400 uppercase mb-2">
+          WEBNOUVEL SLOP CONSUMER • SINCE 2020
+        </p>
+        <h1 class="text-5xl sm:text-6xl font-black tracking-tight text-[#eae8e3] mb-6">
+          Hellooo<span class="text-zinc-500">!</span>
+        </h1>
+        <p class="font-mono-custom text-sm leading-relaxed text-zinc-300 mb-4 break-all">
+          PLEASEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+          recommend me novels to read!!!! Q-Q
+        </p>
+        <button onclick="switchRoute('recs')" class="font-mono-custom text-xs text-zinc-400 hover:text-[#eae8e3] underline underline-offset-4 transition mb-6 inline-flex items-center gap-1.5">
+          <span>or check my 5-star reads on /recs</span>
+          <span>→</span>
+        </button>
+        <hr class="border-zinc-800 my-6" />
+        <div class="flex items-center gap-4 mb-5">
+          <span class="font-mono-custom text-[11px] tracking-[0.18em] text-zinc-400 uppercase whitespace-nowrap">MY SOCIALS</span>
+          <div class="h-[1px] bg-zinc-800 flex-1"></div>
+        </div>
+        <div class="space-y-3.5">
+          <button onclick="copyText('justlagier', 'Copied Discord: justlagier')" class="cream-card w-full px-5 py-4 flex items-center justify-between text-left">
+            <div class="flex items-center gap-5">
+              <span class="font-mono-custom text-xs text-zinc-500">01</span>
+              <span class="font-semibold text-base tracking-tight">Discord</span>
+            </div>
+            <span class="font-mono-custom text-xs text-zinc-500">justlagier</span>
+          </button>
+          <a href="#spotify" onclick="event.preventDefault(); showToast('Opening Spotify profile...')" class="cream-card w-full px-5 py-4 flex items-center justify-between text-left block">
+            <div class="flex items-center gap-5">
+              <span class="font-mono-custom text-xs text-zinc-500">02</span>
+              <span class="font-semibold text-base tracking-tight">Spotify</span>
+            </div>
+            <span class="font-mono-custom text-xs text-zinc-500">↗</span>
+          </a>
+        </div>
+      </section>
+
+      <section id="view-recs" class="view-panel view-hidden-right">
+        <div class="flex items-center justify-between mb-2">
+          <p class="font-mono-custom text-[11px] tracking-[0.18em] text-zinc-400 uppercase">CURATED PEAK &amp; SLOP</p>
+          <span id="novel-count" class="font-mono-custom text-[11px] text-zinc-500">LOADING...</span>
+        </div>
+        <h2 class="text-4xl sm:text-5xl font-black tracking-tight text-[#eae8e3] mb-4">
+          Recs<span class="text-zinc-500">.</span>
+        </h2>
+        <div id="filter-bar" class="flex flex-wrap gap-2 mb-6">
+          <button onclick="filterRecs('ALL')" data-filter="ALL" class="filter-btn font-mono-custom text-[11px] px-3 py-1.5 rounded-full bg-[#eae8e3] text-[#111113] font-bold transition">ALL</button>
+          <button onclick="filterRecs('PEAK')" data-filter="PEAK" class="filter-btn font-mono-custom text-[11px] px-3 py-1.5 rounded-full border border-zinc-700 text-zinc-300 hover:border-zinc-400 transition">★ PEAK</button>
+          <button onclick="filterRecs('FANTASY')" data-filter="FANTASY" class="filter-btn font-mono-custom text-[11px] px-3 py-1.5 rounded-full border border-zinc-700 text-zinc-300 hover:border-zinc-400 transition">FANTASY</button>
+          <button onclick="filterRecs('MYSTERY')" data-filter="MYSTERY" class="filter-btn font-mono-custom text-[11px] px-3 py-1.5 rounded-full border border-zinc-700 text-zinc-300 hover:border-zinc-400 transition">MYSTERY</button>
+        </div>
+        <div id="recs-list" class="space-y-3.5">
+          <div class="animate-pulse space-y-3">
+            <div class="h-24 rounded-2xl bg-zinc-800/60"></div>
+            <div class="h-24 rounded-2xl bg-zinc-800/40"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="px-6 py-3 border-t border-zinc-900 bg-zinc-950/60 flex items-center justify-between font-mono-custom text-[11px] text-zinc-500">
+      <span>lagierr.me<span id="route-indicator" class="text-zinc-300">/me</span></span>
+      <span id="sync-status">kv: syncing</span>
+    </footer>
+  </main>
+
+  <script>
+    const fallbackRecs = [
+      { title: "Lord of the Mysteries", category: "MYSTERY", isPeak: true, status: "★ PEAK", tags: ["#Steampunk", "#Eldritch", "#10/10"], note: "Slow start in Vol 1, but the worldbuilding and tarot club meetings are unmatched." },
+      { title: "Shadow Slave", category: "FANTASY", isPeak: true, status: "★ PEAK", tags: ["#DarkFantasy", "#Progression"], note: "Forgotten Shore arc alone makes this mandatory reading. Peak lore." },
+      { title: "Reverend Insanity", category: "FANTASY", isPeak: true, status: "★ PEAK", tags: ["#VillainMC", "#Schemes"], note: "Ruthless MC who actually uses his brain. Zero plot armor." }
+    ];
+    let novelRecs = [];
+    let currentFilter = 'ALL';
+
+    async function loadRecsFromKV() {
+      const syncStatus = document.getElementById('sync-status');
+      try {
+        const res = await fetch('/api/recs');
+        if (!res.ok) throw new Error('KV endpoint unavailable');
+        const data = await res.json();
+        novelRecs = Array.isArray(data) && data.length > 0 ? data : fallbackRecs;
+        syncStatus.textContent = 'kv: live';
+      } catch (err) {
+        novelRecs = fallbackRecs;
+        syncStatus.textContent = 'kv: local';
       }
-      async function loadRecs() {
-        try {
-          const response = await fetch("/api/recs");
-          if (!response.ok) throw new Error("KV unavailable");
-          recs = await response.json();
-          document.querySelector("#recs-status").textContent = "KV: live";
-        } catch {
-          recs = fallbackRecs;
-          document.querySelector("#recs-status").textContent = "KV: preview";
-        }
-        renderRecs();
-      }
-      function switchRoute(route, push = true) {
-        const isRecs = route === "recs";
-        document.querySelector("#view-me").hidden = isRecs;
-        document.querySelector("#view-recs").hidden = !isRecs;
-        document.querySelector("#dot-me").classList.toggle("active", !isRecs);
-        document.querySelector("#dot-recs").classList.toggle("active", isRecs);
-        if (push) history.pushState({ route }, "", `/${route}`);
-      }
-      document.querySelectorAll("[data-route]").forEach((button) => button.addEventListener("click", () => switchRoute(button.dataset.route)));
-      document.querySelectorAll("[data-filter]").forEach((button) => button.addEventListener("click", () => {
-        filter = button.dataset.filter;
-        document.querySelectorAll("[data-filter]").forEach((item) => item.classList.toggle("active", item === button));
-        renderRecs();
-      }));
-      document.querySelector("#discord-card").addEventListener("click", (event) => {
-        const card = event.currentTarget;
-        const revealed = card.classList.toggle("revealed");
-        card.setAttribute("aria-expanded", String(revealed));
+      renderRecs(currentFilter);
+    }
+
+    function renderRecs(filter = 'ALL') {
+      const listContainer = document.getElementById('recs-list');
+      const countBadge = document.getElementById('novel-count');
+      const filtered = novelRecs.filter(novel => {
+        if (filter === 'ALL') return true;
+        if (filter === 'PEAK') return Boolean(novel.isPeak);
+        return (novel.category || '').toUpperCase() === filter;
       });
-      window.addEventListener("popstate", () => switchRoute(location.pathname.includes("/recs") ? "recs" : "me", false));
-      switchRoute(location.pathname.includes("/recs") ? "recs" : "me", false);
-      loadRecs();
-    </script>
-  </body>
+      countBadge.textContent = `${String(filtered.length).padStart(2, '0')} TITLES`;
+      if (filtered.length === 0) {
+        listContainer.innerHTML = `<div class="p-6 rounded-2xl border border-zinc-800 text-center font-mono-custom text-xs text-zinc-500">No novels in ${filter} yet. Add one via Discord /add-rec!</div>`;
+        return;
+      }
+      listContainer.innerHTML = filtered.map((novel, index) => {
+        const num = String(index + 1).padStart(2, '0');
+        const tags = Array.isArray(novel.tags) ? novel.tags : [];
+        const tagsHtml = tags.map(tag => `<span class="font-mono-custom text-[10px] px-2 py-0.5 rounded bg-zinc-300/80 text-zinc-700">${escapeHtml(tag)}</span>`).join('');
+        return `<article class="cream-card p-5 flex flex-col gap-2.5">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-baseline gap-3">
+              <span class="font-mono-custom text-xs text-zinc-500">${num}</span>
+              <h3 class="font-bold text-base tracking-tight text-[#111113] leading-snug">${escapeHtml(novel.title)}</h3>
+            </div>
+            <span class="font-mono-custom text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#111113] text-[#eae8e3] whitespace-nowrap">${escapeHtml(novel.status || 'READ')}</span>
+          </div>
+          <p class="text-xs text-zinc-700 leading-relaxed pl-7">${escapeHtml(novel.note)}</p>
+          <div class="flex flex-wrap gap-1.5 pl-7 pt-0.5">${tagsHtml}</div>
+        </article>`;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function filterRecs(category) {
+      currentFilter = category;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.className = btn.dataset.filter === category
+          ? 'filter-btn font-mono-custom text-[11px] px-3 py-1.5 rounded-full bg-[#eae8e3] text-[#111113] font-bold transition'
+          : 'filter-btn font-mono-custom text-[11px] px-3 py-1.5 rounded-full border border-zinc-700 text-zinc-300 hover:border-zinc-400 transition';
+      });
+      renderRecs(category);
+    }
+
+    function switchRoute(route, pushHistory = true) {
+      const viewMe = document.getElementById('view-me');
+      const viewRecs = document.getElementById('view-recs');
+      const dotMe = document.getElementById('dot-me');
+      const dotRecs = document.getElementById('dot-recs');
+      const routeIndicator = document.getElementById('route-indicator');
+      [dotMe, dotRecs].forEach(dot => dot.classList.remove('active'));
+      if (route === 'me') {
+        dotMe.classList.add('active');
+        viewRecs.classList.remove('view-visible', 'view-hidden-left');
+        viewRecs.classList.add('view-hidden-right');
+        viewMe.classList.remove('view-hidden-left', 'view-hidden-right');
+        viewMe.classList.add('view-visible');
+        routeIndicator.textContent = '/me';
+      } else if (route === 'recs') {
+        dotRecs.classList.add('active');
+        viewMe.classList.remove('view-visible', 'view-hidden-right');
+        viewMe.classList.add('view-hidden-left');
+        viewRecs.classList.remove('view-hidden-left', 'view-hidden-right');
+        viewRecs.classList.add('view-visible');
+        routeIndicator.textContent = '/recs';
+      }
+      if (pushHistory && window.history && window.location.protocol.startsWith('http')) {
+        try { window.history.pushState({ route }, '', route === 'me' ? '/me' : '/recs'); } catch (_) {}
+      }
+    }
+
+    function handleLockedDot(el) {
+      el.classList.remove('shake');
+      void el.offsetWidth;
+      el.classList.add('shake');
+      showToast('Dot 03 is locked for future ideas 🔒');
+    }
+
+    function copyText(text, message) {
+      navigator.clipboard?.writeText(text).catch(() => {});
+      showToast(message);
+    }
+
+    let toastTimeout;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      toastMsg.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-2');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-2');
+      }, 2200);
+    }
+
+    window.addEventListener('popstate', () => {
+      const path = window.location.pathname;
+      switchRoute(path.includes('recs') ? 'recs' : 'me', false);
+    });
+    if (window.location.pathname.includes('recs')) switchRoute('recs', false);
+    loadRecsFromKV();
+  </script>
+</body>
 </html>
