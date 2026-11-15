@@ -55,6 +55,41 @@ export async function onRequestPost({ request, env }) {
 
   const options = Object.fromEntries((interaction.data.options || []).map((option) => [option.name, option.value]));
   const commandName = interaction.data.name;
+
+  if (commandName === "add-service") {
+    const url = String(options.url || "").trim();
+    try {
+      new URL(url);
+    } catch {
+      return json({ type: 4, data: { content: "Please provide a valid service URL.", flags: 64 } });
+    }
+
+    let services;
+    try {
+      const raw = await env.RECS_KV.get("services");
+      services = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(services)) throw new Error("Stored services value must be an array");
+    } catch {
+      return json({ type: 4, data: { content: "The services store is invalid or unavailable.", flags: 64 } });
+    }
+
+    const service = {
+      name: String(options.name).trim(),
+      url,
+      subdomain: String(options.subdomain || new URL(url).hostname).trim(),
+      access: String(options.access || "PUBLIC").trim().toUpperCase(),
+      description: String(options.description || "").trim(),
+      tags: String(options.tags || "").split(",").map((tag) => tag.trim()).filter(Boolean).map((tag) => tag.startsWith("#") ? tag : `#${tag}`),
+      addedAt: new Date().toISOString()
+    };
+
+    services = services.filter((item) => item.url !== service.url);
+    services.unshift(service);
+    await env.RECS_KV.put("services", JSON.stringify(services));
+
+    return json({ type: 4, data: { content: `Added ${service.name} to lagierr.me/host.`, flags: 64 } });
+  }
+
   let novels;
   try {
     const raw = await env.RECS_KV.get("novels");

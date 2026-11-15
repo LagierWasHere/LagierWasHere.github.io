@@ -192,7 +192,9 @@
         <button id="dot-recs" onclick="switchRoute('recs')" class="nav-dot" aria-label="Novel recommendations section" title="/recs">
           <span class="dot-label font-mono-custom text-[10px] font-bold tracking-wider">/recs</span>
         </button>
-        <button id="dot-soon" onclick="handleLockedDot(this)" class="nav-dot locked" aria-label="Coming soon section" title="Coming soon"></button>
+        <button id="dot-host" onclick="switchRoute('host')" class="nav-dot" aria-label="Hosted services section" title="/host">
+          <span class="dot-label font-mono-custom text-[10px] font-bold tracking-wider">/host</span>
+        </button>
       </nav>
     </header>
 
@@ -210,6 +212,10 @@
         </p>
         <button onclick="switchRoute('recs')" class="font-mono-custom text-xs text-zinc-400 hover:text-[#eae8e3] underline underline-offset-4 transition mb-6 inline-flex items-center gap-1.5">
           <span>or check my 5-star reads on /recs</span>
+          <span>→</span>
+        </button>
+        <button onclick="switchRoute('host')" class="font-mono-custom text-xs text-zinc-400 hover:text-[#eae8e3] underline underline-offset-4 transition mb-6 inline-flex items-center gap-1.5">
+          <span>browse my hosted services on /host</span>
           <span>→</span>
         </button>
         <hr class="border-zinc-800 my-6" />
@@ -256,6 +262,20 @@
           </div>
         </div>
       </section>
+
+      <section id="view-host" class="view-panel view-hidden-right">
+        <div class="flex items-center justify-between mb-2">
+          <p class="font-mono-custom text-[11px] tracking-[0.18em] text-zinc-400 uppercase">SELF-HOSTED SERVICES</p>
+          <span id="host-count" class="font-mono-custom text-[11px] text-zinc-500">LOADING...</span>
+        </div>
+        <h2 class="text-4xl sm:text-5xl font-black tracking-tight text-[#eae8e3] mb-3">
+          Host<span class="text-zinc-500">.</span>
+        </h2>
+        <p class="font-mono-custom text-xs leading-relaxed text-zinc-400 mb-6">
+          Tools and services hosted on my subdomains, checked live when this page loads.
+        </p>
+        <div id="host-list" class="space-y-3.5"></div>
+      </section>
     </div>
 
     <footer class="px-6 py-3 border-t border-zinc-900 bg-zinc-950/60 flex items-center justify-between font-mono-custom text-[11px] text-zinc-500">
@@ -272,6 +292,7 @@
     ];
     let novelRecs = [];
     let currentFilter = 'ALL';
+    let hostedServices = [];
 
     async function loadRecsFromKV() {
       const syncStatus = document.getElementById('sync-status');
@@ -321,6 +342,56 @@
       }).join('');
     }
 
+    async function loadServices() {
+      const syncStatus = document.getElementById('sync-status');
+      try {
+        const res = await fetch(`/api/services?t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Services endpoint unavailable');
+        hostedServices = await res.json();
+        syncStatus.textContent = 'kv: live';
+      } catch {
+        hostedServices = [];
+        syncStatus.textContent = 'kv: local';
+      }
+      renderHosts();
+    }
+
+    function renderHosts() {
+      const hostList = document.getElementById('host-list');
+      const liveCount = hostedServices.filter((service) => service.status === 'LIVE').length;
+      document.getElementById('host-count').textContent = `${String(liveCount).padStart(2, '0')} LIVE`;
+
+      if (!hostedServices.length) {
+        hostList.innerHTML = '<div class="p-6 rounded-2xl border border-zinc-800 text-center font-mono-custom text-xs text-zinc-500">No hosted services have been added yet.</div>';
+        return;
+      }
+
+      hostList.innerHTML = hostedServices.map((service, index) => {
+        const tags = Array.isArray(service.tags) ? service.tags : [];
+        const tagsHtml = tags.map((tag) => `<span class="font-mono-custom text-[10px] px-2 py-0.5 rounded bg-zinc-300/80 text-zinc-700">${escapeHtml(tag)}</span>`).join('');
+        const isLive = service.status === 'LIVE';
+        const card = isLive ? 'cream-card' : 'p-5 rounded-2xl border border-zinc-800/90 bg-zinc-900/30 opacity-75';
+        return `<article class="${card} p-5 flex flex-col gap-2.5">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-baseline gap-3">
+              <span class="font-mono-custom text-xs text-zinc-500">${String(index + 1).padStart(2, '0')}</span>
+              <div>
+                <h3 class="font-bold text-base tracking-tight ${isLive ? 'text-[#111113]' : 'text-zinc-300'}">${escapeHtml(service.name)}</h3>
+                <span class="font-mono-custom text-[11px] ${isLive ? 'text-zinc-600' : 'text-zinc-500'}">${escapeHtml(service.subdomain || service.url)}</span>
+              </div>
+            </div>
+            <span class="font-mono-custom text-[10px] font-bold px-2.5 py-0.5 rounded-full ${isLive ? 'bg-[#111113] text-[#eae8e3]' : 'border border-zinc-700 text-zinc-500'}">${isLive ? 'LIVE' : 'DEAD'}</span>
+          </div>
+          <p class="text-xs ${isLive ? 'text-zinc-700' : 'text-zinc-500'} leading-relaxed pl-7">${escapeHtml(service.description)}</p>
+          <div class="flex items-center justify-between pl-7 pt-1">
+            <div class="flex flex-wrap gap-1.5">${tagsHtml}</div>
+            <span class="font-mono-custom text-[10px] ${isLive ? 'text-zinc-500' : 'text-zinc-600'}">${escapeHtml(service.access || 'PUBLIC')}</span>
+          </div>
+          ${isLive ? `<a class="font-mono-custom text-[10px] text-zinc-600 underline pl-7" href="${escapeHtml(service.url)}" target="_blank" rel="noopener noreferrer">open service</a>` : ''}
+        </article>`;
+      }).join('');
+    }
+
     function escapeHtml(str) {
       return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
@@ -338,14 +409,18 @@
     function switchRoute(route, pushHistory = true) {
       const viewMe = document.getElementById('view-me');
       const viewRecs = document.getElementById('view-recs');
+      const viewHost = document.getElementById('view-host');
       const dotMe = document.getElementById('dot-me');
       const dotRecs = document.getElementById('dot-recs');
+      const dotHost = document.getElementById('dot-host');
       const routeIndicator = document.getElementById('route-indicator');
-      [dotMe, dotRecs].forEach(dot => dot.classList.remove('active'));
+      [dotMe, dotRecs, dotHost].forEach(dot => dot.classList.remove('active'));
       if (route === 'me') {
         dotMe.classList.add('active');
         viewRecs.classList.remove('view-visible', 'view-hidden-left');
         viewRecs.classList.add('view-hidden-right');
+        viewHost.classList.remove('view-visible', 'view-hidden-left');
+        viewHost.classList.add('view-hidden-right');
         viewMe.classList.remove('view-hidden-left', 'view-hidden-right');
         viewMe.classList.add('view-visible');
         routeIndicator.textContent = '/me';
@@ -353,21 +428,26 @@
         dotRecs.classList.add('active');
         viewMe.classList.remove('view-visible', 'view-hidden-right');
         viewMe.classList.add('view-hidden-left');
+        viewHost.classList.remove('view-visible', 'view-hidden-left');
+        viewHost.classList.add('view-hidden-right');
         viewRecs.classList.remove('view-hidden-left', 'view-hidden-right');
         viewRecs.classList.add('view-visible');
         routeIndicator.textContent = '/recs';
         loadRecsFromKV();
+      } else if (route === 'host') {
+        dotHost.classList.add('active');
+        viewMe.classList.remove('view-visible', 'view-hidden-right');
+        viewMe.classList.add('view-hidden-left');
+        viewRecs.classList.remove('view-visible', 'view-hidden-right');
+        viewRecs.classList.add('view-hidden-left');
+        viewHost.classList.remove('view-hidden-left', 'view-hidden-right');
+        viewHost.classList.add('view-visible');
+        routeIndicator.textContent = '/host';
+        loadServices();
       }
       if (pushHistory && window.history && window.location.protocol.startsWith('http')) {
-        try { window.history.pushState({ route }, '', route === 'me' ? '/me' : '/recs'); } catch (_) {}
+        try { window.history.pushState({ route }, '', `/${route}`); } catch (_) {}
       }
-    }
-
-    function handleLockedDot(el) {
-      el.classList.remove('shake');
-      void el.offsetWidth;
-      el.classList.add('shake');
-      showToast('Dot 03 is locked for future ideas 🔒');
     }
 
     function copyText(text, message) {
@@ -391,9 +471,11 @@
 
     window.addEventListener('popstate', () => {
       const path = window.location.pathname;
-      switchRoute(path.includes('recs') ? 'recs' : 'me', false);
+      switchRoute(path.includes('host') ? 'host' : path.includes('recs') ? 'recs' : 'me', false);
     });
-    if (window.location.pathname.includes('recs')) {
+    if (window.location.pathname.includes('host')) {
+      switchRoute('host', false);
+    } else if (window.location.pathname.includes('recs')) {
       switchRoute('recs', false);
     } else {
       loadRecsFromKV();

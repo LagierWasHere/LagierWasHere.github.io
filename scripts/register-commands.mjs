@@ -26,6 +26,20 @@ const commands = [
     integration_types: [0, 1],
     contexts: [0, 1, 2],
     options: [{ name: "title", description: "Title to remove", type: 3, required: true, autocomplete: true }]
+  },
+  {
+    name: "add-service",
+    description: "Add a hosted service to /host",
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
+    options: [
+      { name: "name", description: "Service name", type: 3, required: true },
+      { name: "url", description: "Full service URL", type: 3, required: true },
+      { name: "description", description: "What the service does", type: 3, required: true },
+      { name: "subdomain", description: "Displayed subdomain or hostname", type: 3, required: false },
+      { name: "access", description: "Access label, such as PUBLIC or INVITE", type: 3, required: false },
+      { name: "tags", description: "Comma-separated tags", type: 3, required: false }
+    ]
   }
 ];
 

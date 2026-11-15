@@ -19,6 +19,9 @@ Before deploying the Discord integration:
    The command registration includes `integration_types: [0, 1]` and
    `contexts: [0, 1, 2]`, allowing the commands in servers and user-installed
    contexts.
+7. Re-run the registration script after deploying service support to register
+   `/add-service`. Add services with their full URL, then view their live
+   checker result at `/host`.
 
 Never commit `DISCORD_BOT_TOKEN` or other secrets. The bot token is only needed
 when running the registration script; the deployed webhook uses the public key
