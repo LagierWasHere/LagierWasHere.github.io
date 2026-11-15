@@ -276,7 +276,9 @@
     async function loadRecsFromKV() {
       const syncStatus = document.getElementById('sync-status');
       try {
-        const res = await fetch('/api/recs');
+        const res = await fetch(`/api/recs?fresh=${Date.now()}`, {
+          cache: 'no-store'
+        });
         if (!res.ok) throw new Error('KV endpoint unavailable');
         const data = await res.json();
         novelRecs = Array.isArray(data) && data.length > 0 ? data : fallbackRecs;
@@ -354,6 +356,7 @@
         viewRecs.classList.remove('view-hidden-left', 'view-hidden-right');
         viewRecs.classList.add('view-visible');
         routeIndicator.textContent = '/recs';
+        loadRecsFromKV();
       }
       if (pushHistory && window.history && window.location.protocol.startsWith('http')) {
         try { window.history.pushState({ route }, '', route === 'me' ? '/me' : '/recs'); } catch (_) {}
@@ -390,8 +393,11 @@
       const path = window.location.pathname;
       switchRoute(path.includes('recs') ? 'recs' : 'me', false);
     });
-    if (window.location.pathname.includes('recs')) switchRoute('recs', false);
-    loadRecsFromKV();
+    if (window.location.pathname.includes('recs')) {
+      switchRoute('recs', false);
+    } else {
+      loadRecsFromKV();
+    }
   </script>
 </body>
 </html>

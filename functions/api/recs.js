@@ -10,7 +10,10 @@ export async function onRequestGet({ env }) {
       return json({ error: "Stored novels value must be an array" }, 500);
     }
 
-    return json(novels, 200, { "Cache-Control": "public, max-age=30" });
+    return json(novels, 200, {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      "CDN-Cache-Control": "no-store"
+    });
   } catch (error) {
     return json({ error: error instanceof Error ? error.message : "Unable to read recommendations" }, 500);
   }
