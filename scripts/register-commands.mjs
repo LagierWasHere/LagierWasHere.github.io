@@ -9,6 +9,8 @@ const commands = [
   {
     name: "add-rec",
     description: "Add a novel recommendation",
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
     options: [
       { name: "title", description: "Novel title", type: 3, required: true },
       { name: "note", description: "Why you recommend it", type: 3, required: true },
@@ -21,6 +23,8 @@ const commands = [
   {
     name: "del-rec",
     description: "Remove a novel recommendation",
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
     options: [{ name: "title", description: "Title to remove", type: 3, required: true, autocomplete: true }]
   }
 ];
@@ -36,3 +40,4 @@ if (!response.ok) {
 }
 
 console.log(`Registered ${commands.length} global Discord commands.`);
+console.log(`User-install URL: https://discord.com/oauth2/authorize?client_id=${appId}&scope=applications.commands&integration_type=1`);

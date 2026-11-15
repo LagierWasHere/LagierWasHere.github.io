@@ -14,6 +14,11 @@ Before deploying the Discord integration:
 4. Run `DISCORD_APP_ID=... DISCORD_BOT_TOKEN=... node scripts/register-commands.mjs`
    locally once to register the global slash commands.
 5. Set the Discord Interactions Endpoint URL to `https://lagierr.me/api/discord`.
+6. In the Discord Developer Portal, enable **User Install** for the app, then
+   install it to your account using the user-install URL printed by the script.
+   The command registration includes `integration_types: [0, 1]` and
+   `contexts: [0, 1, 2]`, allowing the commands in servers and user-installed
+   contexts.
 
 Never commit `DISCORD_BOT_TOKEN` or other secrets. The bot token is only needed
 when running the registration script; the deployed webhook uses the public key
